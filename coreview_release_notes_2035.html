@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoreView Release Notes: 2025 - 2035</title>
+    <style>
+        :root {
+            --primary: #00e5ff;
+            --secondary: #7000ff;
+            --bg-dark: #050510;
+            --bg-panel: #0a0a1f;
+            --text-main: #e0e0e0;
+            --text-dim: #8892b0;
+            --accent: #ff0055;
+            --glass: rgba(10, 10, 31, 0.7);
+            --font-mono: 'Courier New', Courier, monospace;
+            --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(45deg, rgba(0, 229, 255, 0.05) 0%, transparent 70%),
+                radial-gradient(circle at 50% 50%, rgba(112, 0, 255, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .system-status {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Timeline Navigation */
+        .timeline {
+            width: 250px;
+            position: fixed;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px 20px;
+            background: rgba(5, 5, 16, 0.5);
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary) var(--bg-dark);
+        }
+
+        .year-marker {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            margin-top: 30px;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+        }
+
+        .year-marker:first-child { margin-top: 0; }
+
+        .nav-item {
+            display: block;
+            padding: 10px 15px;
+            color: var(--text-main);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            border-left-color: var(--primary);
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), transparent);
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+            padding-left: 25px;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 60px 80px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .release-card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .release-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(0, 229, 255, 0.3);
+        }
+
+        .release-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .version-badge {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: var(--primary);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .release-date {
+            float: right;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+            color: white;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin: 25px 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h3::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-left: 15px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-dim);
+        }
+
+        li::before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        strong {
+            color: var(--text-main);
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .tag.new { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
+        .tag.beta { background: rgba(255, 165, 0, 0.2); color: orange; border: 1px solid orange; }
+        .tag.ai { background: rgba(255, 0, 255, 0.2); color: #ff00ff; border: 1px solid #ff00ff; }
+        .tag.deprecated { background: rgba(255, 0, 0, 0.2); color: #ff4444; border: 1px solid #ff4444; }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* 2035 Special Styling */
+        .future-card {
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            background: linear-gradient(135deg, rgba(10,10,31,1) 0%, rgba(5,5,16,1) 100%);
+        }
+        
+        .future-card h2 {
+            background: linear-gradient(90deg, #fff, #00e5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">CoreView <span style="font-weight: 300; opacity: 0.7;">Chronicles</span></div>
+    <div class="system-status">● SYSTEM CONNECTED: NODE_EARTH_01</div>
+</header>
+
+<div class="container">
+    <nav class="timeline">
+        <div class="year-marker">THE SINGULARITY ERA</div>
+        <a href="#v2035" class="nav-item">2035: The Sentience Update</a>
+        <a href="#v2034" class="nav-item">2034: Legacy Sunset</a>
+        <a href="#v2033" class="nav-item">2033: Neural Link Beta</a>
+        
+        <div class="year-marker">THE EXPANSION ERA</div>
+        <a href="#v2032" class="nav-item">2032: Interplanetary Sync</a>
+        <a href="#v2031" class="nav-item">2031: Synthetic Workforce</a>
+        <a href="#v2030" class="nav-item">2030: Quantum Security</a>
+        
+        <div class="year-marker">THE INTELLIGENCE ERA</div>
+        <a href="#v2029" class="nav-item">2029: Predictive Governance</a>
+        <a href="#v2028" class="nav-item">2028: Spatial Admin</a>
+        <a href="#v2027" class="nav-item">2027: Unified Identity</a>
+        
+        <div class="year-marker">THE FOUNDATION ERA</div>
+        <a href="#v2026" class="nav-item">2026: Copilot Native</a>
+        <a href="#v2025" class="nav-item">2025: The Awakening</a>
+    </nav>
+
+    <div class="content">
+        
+        <!-- 2035 -->
+        <div id="v2035" class="release-card future-card">
+            <span class="version-badge">v35.0 - THE SINGULARITY BUILD</span>
+            <span class="release-date">December 15, 2035</span>
+            <h2>Autonomous Core Optimization</h2>
+            <p style="color: #aab; margin-bottom: 20px;">
+                Marking a decade of innovation, this release shifts CoreView from a management tool to an autonomous governance partner. The system now operates with Level 5 Autonomy.
+            </p>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Self-Healing Infrastructure</strong> <span class="tag ai">AI</span><br>
+                CoreView now autonomously renegotiates SaaS contracts, provisions licenses, and patches security vulnerabilities across the Global Data Grid without human intervention.</li>
+                
+                <li><strong>Pre-Crime Compliance</strong> <span class="tag new">NEW</span><br>
+                Utilizing temporal heuristic models, CoreView prevents compliance breaches *before* they occur by blocking user intent at the neural level (requires Entra ID Neural Integration).</li>
+                
+                <li><strong>Holo-Conference Management</strong><br>
+                Full support for managing Microsoft Mesh v12 "Hard Light" projection rooms. Calibrate photon density and haptic feedback limits per user policy.</li>
+            </ul>
+
+            <h3>Improvements</h3>
+            <ul>
+                <li><strong>Thought-to-Command Latency</strong> reduced to 12ms.</li>
+                <li><strong>Quantum Decryption</strong> speed increased by 4000% for legacy RSA-4096 keys.</li>
+            </ul>
+        </div>
+
+        <!-- 2034 -->
+        <div id="v2034" class="release-card">
+            <span class="version-badge">v34.4 - LEGACY SUNSET</span>
+            <span class="release-date">October 10, 2034</span>
+            <h2>Farewell to 2D</h2>
+            
+            <h3>Deprecations</h3>
+            <ul>
+                <li><strong>2D Dashboard Removal</strong> <span class="tag deprecated">END OF LIFE</span><br>
+                The flat HTML/CSS web portal has been removed. All administration must now be performed via the VR Command Deck or Neural CLI.</li>
+                
+                <li><strong>Password Management</strong><br>
+                Support for "passwords" has been permanently removed. Biometric or DNA-sequence authentication is now mandatory for all managed tenants.</li>
+            </ul>
+
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Universal Translator Policy</strong><br>
+                Enforce real-time translation for 4,000 languages (including synthetic dialects) in Teams Hologram sessions.</li>
+            </ul>
+        </div>
+
+        <!-- 2033 -->
+        <div id="v2033" class="release-card">
+            <span class="version-badge">v33.1 - NEURAL LINK</span>
+            <span class="release-date">March 22, 2033</span>
+            <h2>The Interface is You</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Neural Link Support (Beta)</strong> <span class="tag beta">BETA</span><br>
+                Admins with FDA-approved neural implants can now visualize tenant health as a background color in their visual cortex. Red = Critical, Blue = Healthy.</li>
+                
+                <li><strong>Bio-Digital Rights Management</strong><br>
+                Manage permissions based on user stress levels and cortisol readings. Automatically revoke "Global Admin" access if the user is detected as "Emotionally Compromised".</li>
+            </ul>
+        </div>
+
+        <!-- 2032 -->
+        <div id="v2032" class="release-card">
+            <span class="version-badge">v32.0 - RED PLANET</span>
+            <span class="release-date">July 14, 2032</span>
+            <h2>Interplanetary Governance</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>High-Latency Sync Protocol (Mars-1)</strong> <span class="tag new">NEW</span><br>
+                Optimized management for Earth-Mars lag (4-24 mins). Actions are queued and verified via local blockchain nodes before syncing back to Earth HQ.</li>
+                
+                <li><strong>Oxygen Credit Management</strong><br>
+                New module to manage "Life Support" credits alongside Exchange Mailbox quotas for off-world employees.</li>
+            </ul>
+        </div>
+
+        <!-- 2031 -->
+        <div id="v2031" class="release-card">
+            <span class="version-badge">v31.5 - SYNTHETIC WORKFORCE</span>
+            <span class="release-date">May 01, 2031</span>
+            <h2>Managing the Machines</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>AI Agent Lifecycle Management</strong> <span class="tag new">NEW</span><br>
+                Provision, license, and retire Autonomous AI Agents just like human users. Track "Compute Consumption" vs "Business Value Generated".</li>
+                
+                <li><strong>Turing Test Enforcement</strong><br>
+                Policy to require external guest users to pass a CAPTCHA v9 (Empathy Test) before accessing shared SharePoint sites.</li>
+            </ul>
+        </div>
+
+        <!-- 2030 -->
+        <div id="v2030" class="release-card">
+            <span class="version-badge">v30.0 - QUANTUM LEAP</span>
+            <span class="release-date">January 15, 2030</span>
+            <h2>The Post-Encryption Era</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Post-Quantum Cryptography (PQC) Migration Wizard</strong> <span class="tag new">CRITICAL</span><br>
+                One-click tool to re-encrypt all M365 and Azure data using lattice-based cryptography to protect against Q-Day threats.</li>
+                
+                <li><strong>Carbon-Aware Scheduling</strong><br>
+                CoreView now schedules heavy reporting and PowerShell jobs only when the local energy grid is 95% renewable.</li>
+            </ul>
+        </div>
+
+        <!-- 2029 -->
+        <div id="v2029" class="release-card">
+            <span class="version-badge">v29.2 - PRECOGNITION</span>
+            <span class="release-date">September 09, 2029</span>
+            <h2>Governing the Future</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Predictive Offboarding</strong> <span class="tag ai">AI</span><br>
+                CoreView AI analyzes email sentiment and badge swipes to predict user resignation with 89% accuracy, pre-staging offboarding workflows for HR approval.</li>
+                
+                <li><strong>Voice-Only Admin Mode</strong><br>
+                Full support for natural language administration via smart speakers. "Hey CoreView, who has access to the CEO's mailbox?"</li>
+            </ul>
+        </div>
+
+        <!-- 2028 -->
+        <div id="v2028" class="release-card">
+            <span class="version-badge">v28.0 - SPATIAL COMPUTING</span>
+            <span class="release-date">June 20, 2028</span>
+            <h2>Enter the Matrix</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>CoreView VR Command Center</strong> <span class="tag new">NEW</span><br>
+                Native app for Apple Vision Pro 3 and Meta Quest Pro 4. Visualize your org chart as a 3D galaxy where nodes are users and lines are communication flows.</li>
+                
+                <li><strong>Gesture Control</strong><br>
+                "Pinch" to disable a user. "Swipe" to migrate a mailbox. "Crush" to delete a tenant (Double confirmation required).</li>
+            </ul>
+        </div>
+
+        <!-- 2027 -->
+        <div id="v2027" class="release-card">
+            <span class="version-badge">v27.4 - UNIFIED FABRIC</span>
+            <span class="release-date">November 11, 2027</span>
+            <h2>One ID to Rule Them All</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Universal SaaS Identity</strong> <span class="tag new">NEW</span><br>
+                Manage permissions across M365, Salesforce, AWS, Google Workspace, and Slack from a single "User Object".</li>
+                
+                <li><strong>Blockchain Audit Logs</strong><br>
+                All admin actions are now written to a private immutable ledger for absolute compliance proof.</li>
+            </ul>
+        </div>
+
+        <!-- 2026 -->
+        <div id="v2026" class="release-card">
+            <span class="version-badge">v26.0 - COPILOT NATIVE</span>
+            <span class="release-date">February 28, 2026</span>
+            <h2>Your AI Partner</h2>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>CoreView Copilot</strong> <span class="tag ai">AI</span><br>
+                The search bar is now a chat interface. Ask complex questions: "Show me all users in Italy who haven't used Teams in 30 days and downgrade their license."</li>
+                
+                <li><strong>Auto-Remediation Playbooks</strong><br>
+                Library of 500+ self-healing scripts. If a user's MFA is disabled, CoreView re-enables it and sends them a training video automatically.</li>
+            </ul>
+        </div>
+
+        <!-- 2025 -->
+        <div id="v2025" class="release-card">
+            <span class="version-badge">v25.12 - THE FOUNDATION</span>
+            <span class="release-date">December 11, 2025</span>
+            <h2>Setting the Stage</h2>
+            <p style="color: #aab; margin-bottom: 20px;">
+                The release that started the next decade of innovation.
+            </p>
+            
+            <h3>New Features</h3>
+            <ul>
+                <li><strong>Teams Mesh Management</strong> <span class="tag new">NEW</span><br>
+                First-party support for managing Avatars and Immersive Spaces policies.</li>
+                
+                <li><strong>Advanced License Optimization</strong><br>
+                Granular reclamation of "Zombie Licenses" (assigned but unused features within E5 bundles).</li>
+                
+                <li><strong>Dark Mode v2</strong><br>
+                True OLED black support for the admin portal.</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Simple smooth scroll behavior for the nav
+    document.querySelectorAll('.nav-item').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+            
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Intersection Observer to highlight nav on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelector(`.nav-item[href="#${id}"]`).classList.add('active');
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.release-card').forEach((section) => {
+        observer.observe(section);
+    });
+</script>
+
+</body>
+</html>
